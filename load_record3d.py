@@ -2,6 +2,7 @@ import os
 import imageio
 import json
 import cv2
+from tqdm import tqdm
 from pyquaternion import Quaternion
 from dataloader_util import *
 
@@ -25,10 +26,12 @@ def load_record3d_data(basedir, trainskip, downsample_factor=1, translation=0.0,
     frame_indices = []
 
     # Read images and depth maps for which valid poses exist
-    for i in train_frame_ids:
-        img = imageio.imread(os.path.join(basedir, 'rgb', img_files[i]))
+    for i in tqdm(train_frame_ids):
         depth = cv2.imread(os.path.join(basedir, 'depth', depth_files[i]), -1)
         depth = depth[:, :, 2]
+
+        img = imageio.imread(os.path.join(basedir, 'rgb', img_files[i]))
+        img = resize_images(np.array([img]), depth.shape[0], depth.shape[1])[0]
 
         pose_arr = metadata['poses'][i]
         quat = Quaternion(pose_arr[:4])
@@ -52,11 +55,10 @@ def load_record3d_data(basedir, trainskip, downsample_factor=1, translation=0.0,
     poses[:, :3, 3] *= sc_factor
 
     # Intrinsics
+    image_H, image_W = metadata['h'], metadata['w']
     H, W = depth_maps[0].shape[:2]
     focal = metadata['K'][0]
-
-    # Resize color frames to match depth
-    images = resize_images(images, H, W)
+    focal *= (H / image_H)
 
     # Crop the undistortion artifacts
     if crop > 0:
@@ -76,5 +78,6 @@ def load_record3d_data(basedir, trainskip, downsample_factor=1, translation=0.0,
     print(f'Depth min: {np.min(depth_maps)}')
     print(f'Depth max: {np.max(depth_maps)}')
     print(f'Poses: {poses.shape}')
+    print(f'Focal: {focal}')
 
     return images, depth_maps, poses, [H, W, focal], frame_indices

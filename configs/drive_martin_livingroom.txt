@@ -5,7 +5,7 @@ dataset_type = record3d
 trainskip = 1
 
 N_iters = 400000
-N_rand = 900
+N_rand = 1024
 N_samples = 512
 N_importance = 16
 chunk = 4096  # 1024 * 16
@@ -36,5 +36,5 @@ far = 2.0
 factor = 1
 render_factor = 1
 
-i_img = 5000
+i_img = 1000
 i_mesh = 200000
