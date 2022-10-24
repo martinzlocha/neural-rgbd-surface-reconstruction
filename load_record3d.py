@@ -80,5 +80,8 @@ def load_record3d_data(basedir, trainskip, downsample_factor=1, translation=0.0,
     print(f'Depth max: {np.max(depth_maps)}')
     print(f'Poses: {poses.shape}')
     print(f'Focal: {focal}')
+    print(f'X: {np.min(poses[:, 0, 3])} - {np.mean(poses[:, 0, 3])} - {np.max(poses[:, 0, 3])}')
+    print(f'X: {np.min(poses[:, 1, 3])} - {np.mean(poses[:, 1, 3])} - {np.max(poses[:, 1, 3])}')
+    print(f'X: {np.min(poses[:, 2, 3])} - {np.mean(poses[:, 2, 3])} - {np.max(poses[:, 2, 3])}')
 
     return images, depth_maps, poses, [H, W, focal], frame_indices

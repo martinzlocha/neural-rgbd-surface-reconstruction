@@ -1,8 +1,8 @@
-expname = livingroom_full
+expname = livingroom_full_2
 basedir = /content/drive/MyDrive/NeRF_Results
 datadir = /content/drive/MyDrive/Recordings/3D/livingroom_full
 dataset_type = record3d
-trainskip = 2
+trainskip = 8
 
 N_iters = 400000
 N_rand = 1024
@@ -16,7 +16,7 @@ share_coarse_fine = True
 multires = 8
 
 rgb_weight = 0.1
-depth_weight = 0.0
+depth_weight = 0
 fs_weight = 10.0
 trunc_weight = 6000.0
 trunc = 0.05
@@ -28,8 +28,8 @@ mode = sdf
 use_viewdirs = True
 raw_noise_std = 0.0
 
-translation = [0, 0, 0]
-sc_factor = 1
+translation = [1, 0.2, 1]
+sc_factor = 0.35
 near = 0.0
 far = 2.0
 
