@@ -9,7 +9,7 @@ from dataloader_util import *
 
 def load_record3d_data(basedir, trainskip, downsample_factor=1, translation=0.0, sc_factor=1., crop=0):
     # Get image filenames, poses and intrinsics
-    img_files = [f for f in sorted(os.listdir(os.path.join(basedir, 'rgb')), key=alphanum_key) if f.endswith('jpg')]
+    img_files = [f for f in sorted(os.listdir(os.path.join(basedir, 'images')), key=alphanum_key) if f.endswith('jpg')]
     depth_files = [f for f in sorted(os.listdir(os.path.join(basedir, 'depth')), key=alphanum_key) if f.endswith('exr')]
 
     with open(os.path.join(basedir, 'metadata.json'), 'r') as f:
@@ -31,7 +31,7 @@ def load_record3d_data(basedir, trainskip, downsample_factor=1, translation=0.0,
         depth = resize_images(np.array([depth]), depth.shape[0] * 4, depth.shape[1] * 4)[0]
         depth = depth[:, :, 2]
 
-        img = imageio.imread(os.path.join(basedir, 'rgb', img_files[i]))
+        img = imageio.imread(os.path.join(basedir, 'images', img_files[i]))
         img = resize_images(np.array([img]), depth.shape[0], depth.shape[1])[0]
 
         pose_arr = metadata['poses'][i]
