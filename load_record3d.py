@@ -28,7 +28,7 @@ def load_record3d_data(basedir, trainskip, downsample_factor=1, translation=0.0,
     # Read images and depth maps for which valid poses exist
     for i in tqdm(train_frame_ids):
         depth = cv2.imread(os.path.join(basedir, 'depth', depth_files[i]), -1)
-        depth = resize_images(np.array([depth]), depth.shape[0] * 2, depth.shape[1] * 2)[0]
+        depth = resize_images(np.array([depth]), depth.shape[0] * 4, depth.shape[1] * 4)[0]
         depth = depth[:, :, 2]
 
         img = imageio.imread(os.path.join(basedir, 'rgb', img_files[i]))
