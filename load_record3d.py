@@ -35,7 +35,7 @@ def load_record3d_data(basedir, trainskip, downsample_factor=1, translation=0.0,
         img = resize_images(np.array([img]), depth.shape[0], depth.shape[1])[0]
 
         pose_arr = metadata['poses'][i]
-        quat = Quaternion(pose_arr[:4])
+        quat = Quaternion(w=pose_arr[3], x=pose_arr[0], y=pose_arr[1], z=pose_arr[2])
         pose_matrix = quat.transformation_matrix
         pose_matrix[:3, 3] = pose_arr[4:]
 
@@ -56,7 +56,7 @@ def load_record3d_data(basedir, trainskip, downsample_factor=1, translation=0.0,
     poses[:, :3, 3] *= sc_factor
 
     # Intrinsics
-    image_H, image_W = metadata['h'], metadata['w']
+    image_H = metadata['h']
     H, W = depth_maps[0].shape[:2]
     focal = metadata['K'][0]
     focal *= (H / image_H)
