@@ -9,7 +9,7 @@ from pyquaternion import Quaternion
 from dataloader_util import *
 
 
-def load_image(basedir, names):
+def load_image(names, basedir):
     depth_file, image_fize = names
     depth = cv2.imread(os.path.join(basedir, 'depth', depth_file), -1)
     depth = resize_images(np.array([depth]), depth.shape[0] * 3, depth.shape[1] * 3)[0]
