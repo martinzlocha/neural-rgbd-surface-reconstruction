@@ -2,6 +2,7 @@ import os
 
 os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 
+import gc
 import time
 import imageio
 from nerf_helpers import *
@@ -630,18 +631,17 @@ def train():
         # This stack() adds a new dimension.
         rays = np.stack([get_camera_rays_np(H, W, focal) for _ in range(poses.shape[0])], 0)  # [N, H, W, 3]
         print('done, concats')
+        gc.collect()
 
-        # Concatenate color and depth
-        rays = np.concatenate([rays, images], -1)  # [N, H, W, 6]
-        rays = np.concatenate([rays, depth_images], -1)  # [N, H, W, 7]
-
-        # Concatenate frame ids
+        # Concatenate
         ids = np.arange(rays.shape[0], dtype=np.float32)
         ids = ids[:, np.newaxis, np.newaxis, np.newaxis]
         ids = np.tile(ids, [1, rays.shape[1], rays.shape[2], 1])
-        rays = np.concatenate([rays, ids], -1)  # [N, H, W, 8]
+        rays = np.concatenate([rays, images, depth_images, ids], -1) # [N, H, W, 8]
+        gc.collect()
 
         rays = rays.reshape([-1, rays.shape[-1]])  # [N_rays, 8]
+        gc.collect()
         return rays
 
     # Prepare ray data
