@@ -1,4 +1,5 @@
 import os
+import gc
 import imageio
 import json
 import cv2
@@ -14,9 +15,11 @@ def load_image(names, basedir):
     depth = cv2.imread(os.path.join(basedir, 'depth', depth_file), -1)
     depth = resize_images(np.array([depth]), depth.shape[0] * 2, depth.shape[1] * 2)[0]
     depth = depth[:, :, 2]
+    depth = np.array(depth).astype(np.float32)
 
     img = imageio.imread(os.path.join(basedir, 'images', image_fize))
     img = resize_images(np.array([img]), depth.shape[0], depth.shape[1])[0]
+    img = (np.array(img) / 255.).astype(np.float32)
 
     return depth, img
 
@@ -60,9 +63,12 @@ def load_record3d_data(basedir, trainskip, downsample_factor=1, translation=0.0,
         frame_indices.append(i)
 
     # Map images to [0, 1] range
-    images = (np.array(images) / 255.).astype(np.float32)
+    gc.collect()
+    images = np.stack(images)
+    gc.collect()
+    depth_maps = np.stack(depth_maps)
+    gc.collect()
 
-    depth_maps = np.array(depth_maps).astype(np.float32)
     depth_maps *= sc_factor
     depth_maps = depth_maps[..., np.newaxis]
 
