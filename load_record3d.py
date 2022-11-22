@@ -2,10 +2,23 @@ import os
 import imageio
 import json
 import cv2
+import concurrent.futures
+from functools import partial
 from tqdm import tqdm
 from pyquaternion import Quaternion
 from dataloader_util import *
 
+
+def load_image(basedir, names):
+    depth_file, image_fize = names
+    depth = cv2.imread(os.path.join(basedir, 'depth', depth_file), -1)
+    depth = resize_images(np.array([depth]), depth.shape[0] * 3, depth.shape[1] * 3)[0]
+    depth = depth[:, :, 2]
+
+    img = imageio.imread(os.path.join(basedir, 'images', image_fize))
+    img = resize_images(np.array([img]), depth.shape[0], depth.shape[1])[0]
+
+    return depth, img
 
 def load_record3d_data(basedir, trainskip, downsample_factor=1, translation=0.0, sc_factor=1., crop=0):
     # Get image filenames, poses and intrinsics
@@ -25,22 +38,24 @@ def load_record3d_data(basedir, trainskip, downsample_factor=1, translation=0.0,
     poses = []
     frame_indices = []
 
-    # Read images and depth maps for which valid poses exist
+    names = []
     for i in tqdm(train_frame_ids):
-        depth = cv2.imread(os.path.join(basedir, 'depth', depth_files[i]), -1)
-        depth = resize_images(np.array([depth]), depth.shape[0] * 3, depth.shape[1] * 3)[0]
-        depth = depth[:, :, 2]
+        names.append((depth_files[i], img_files[i]))
 
-        img = imageio.imread(os.path.join(basedir, 'images', img_files[i]))
-        img = resize_images(np.array([img]), depth.shape[0], depth.shape[1])[0]
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        results = list(tqdm(executor.map(partial(load_image, basedir=basedir), names), total=len(train_frame_ids)))
 
+        for result in results:
+            depth, image = result
+            images.append(image)
+            depth_maps.append(depth)
+
+    for i in tqdm(train_frame_ids):
         pose_arr = metadata['poses'][i]
         quat = Quaternion(w=pose_arr[3], x=pose_arr[0], y=pose_arr[1], z=pose_arr[2])
         pose_matrix = quat.transformation_matrix
         pose_matrix[:3, 3] = pose_arr[4:]
 
-        images.append(img)
-        depth_maps.append(depth)
         poses.append(pose_matrix)
         frame_indices.append(i)
 
