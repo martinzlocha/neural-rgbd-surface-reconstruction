@@ -1,6 +1,6 @@
-expname = Livingroom3
+expname = livingroom
 basedir = /content/drive/MyDrive/NeRF_Results
-datadir = /content/drive/MyDrive/Recordings/3D/livingroom_sample
+datadir = /content/drive/MyDrive/Recordings/3D/livingroom
 dataset_type = record3d
 trainskip = 1
 
@@ -9,7 +9,7 @@ N_rand = 1024
 N_samples = 512
 N_importance = 16
 chunk = 4096  # 1024 * 16
-frame_features = 0
+frame_features = 2
 optimize_poses = True
 use_deformation_field = False
 share_coarse_fine = True
@@ -28,8 +28,8 @@ mode = sdf
 use_viewdirs = True
 raw_noise_std = 0.0
 
-translation = [0, 0, 0]
-sc_factor = 1
+translation = [1.2, 0, 1.4]
+sc_factor = 0.25
 near = 0.0
 far = 2.0
 

@@ -16,7 +16,7 @@ share_coarse_fine = True
 multires = 8
 
 rgb_weight = 0.1
-depth_weight = 0
+depth_weight = 0.0
 fs_weight = 10.0
 trunc_weight = 6000.0
 trunc = 0.05
