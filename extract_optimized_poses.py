@@ -8,7 +8,7 @@ from pose_array import PoseArray
 
 def get_pose_array(expname, iter, basedir='./logs'):
 
-    config = os.path.join(basedir, expname, 'transforms.json')
+    config = os.path.join(basedir, expname, 'config.txt')
     print('Args:')
     print(open(config, 'r').read())
 
@@ -16,7 +16,7 @@ def get_pose_array(expname, iter, basedir='./logs'):
     args = parser.parse_args('--config {} '.format(config))
 
     # Load poses
-    tmp, valid, transform_contents = load_transform_poses(os.path.join(args.datadir, 'trainval_poses.txt'))
+    tmp, valid, transform_contents = load_transform_poses(os.path.join(args.datadir, 'transforms.json'))
     poses = []
     for i in range(len(tmp)):
         if valid[i]:
@@ -69,11 +69,15 @@ def extract_poses(poses, pose_array, args, transform_contents):
     optimized_poses[:, :3, 3] /= args.sc_factor
     optimized_poses[:, :3, 3] -= args.translation
     
-    for i in range(optimized_poses.shape[0]):
-        transform_contents['frames']['transform_matrix'] = optimized_poses[i].tolist()
+    assert optimized_poses.shape[0] == len(transform_contents['frames'])
 
-    with open(os.path.join(basedir, expname, 'poses', 'transforms_opt.json'), 'rw') as f:
-        json.dump(optimized_poses, f)
+    print(f"Example before: {transform_contents['frames'][0]['transform_matrix']}")
+    for i in range(optimized_poses.shape[0]):
+        transform_contents['frames'][i]['transform_matrix'] = optimized_poses[i].tolist()
+    print(f"Example after: {transform_contents['frames'][0]['transform_matrix']}")
+
+    with open(os.path.join(basedir, expname, 'poses', 'transforms_opt.json'), 'w') as f:
+        json.dump(transform_contents, f)
 
 
 if __name__ == '__main__':
