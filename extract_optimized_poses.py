@@ -1,7 +1,8 @@
 import os
+import json
 import numpy as np
 import optimize
-from dataloader_util import load_poses
+from dataloader_util import load_transform_poses
 from pose_array import PoseArray
 
 
@@ -15,7 +16,7 @@ def get_pose_array(expname, iter, basedir='./logs'):
     args = parser.parse_args('--config {} '.format(config))
 
     # Load poses
-    tmp, valid = load_poses(os.path.join(args.datadir, 'trainval_poses.txt'))
+    tmp, valid, transform_contents = load_transform_poses(os.path.join(args.datadir, 'trainval_poses.txt'))
     poses = []
     for i in range(len(tmp)):
         if valid[i]:
@@ -33,10 +34,10 @@ def get_pose_array(expname, iter, basedir='./logs'):
     print('Reloading pose array from', pose_array_path)
     pose_array.set_weights(np.load(pose_array_path, allow_pickle=True))
 
-    return poses, pose_array, args
+    return poses, pose_array, args, transform_contents
 
 
-def extract_poses(poses, pose_array, args):
+def extract_poses(poses, pose_array, args, transform_contents):
 
     os.makedirs(os.path.join(basedir, expname, 'poses'), exist_ok=True)
 
@@ -67,24 +68,28 @@ def extract_poses(poses, pose_array, args):
     optimized_poses = np.array(optimized_poses).astype(np.float32)
     optimized_poses[:, :3, 3] /= args.sc_factor
     optimized_poses[:, :3, 3] -= args.translation
-    optimized_poses = np.reshape(optimized_poses, [-1, 4])
-    np.savetxt(os.path.join(basedir, expname, 'poses', 'optimized_poses.txt'), optimized_poses, fmt="%.6f")
+    
+    for i in range(optimized_poses.shape[0]):
+        transform_contents['frames']['transform_matrix'] = optimized_poses[i].tolist()
+
+    with open(os.path.join(basedir, expname, 'poses', 'transforms_opt.json'), 'rw') as f:
+        json.dump(optimized_poses, f)
 
 
 if __name__ == '__main__':
     # Checkpoint path information
     experiments = [
         {
-            'basedir': './logs',
-            'expname': 'whiteroom'
+            'basedir': '/content/drive/MyDrive/NeRF_Results/RGBD',
+            'expname': 'livingroom'
         },
     ]
 
-    iter = 400000
+    iter = 50000
 
     for e in experiments:
         basedir, expname = e.values()
         print(basedir, expname)
 
-        poses, pose_array, args = get_pose_array(expname, iter, basedir)
-        extract_poses(poses, pose_array, args)
+        poses, pose_array, args, transform_contents = get_pose_array(expname, iter, basedir)
+        extract_poses(poses, pose_array, args, transform_contents)

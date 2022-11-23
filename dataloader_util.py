@@ -1,6 +1,7 @@
 import numpy as np
 import re
 import cv2
+import json
 
 
 def load_poses(posefile):
@@ -20,6 +21,20 @@ def load_poses(posefile):
             poses.append(pose_floats)
 
     return poses, valid
+
+
+def load_transform_poses(path):
+    with open(path, "r") as f:
+        contents = json.load(f)
+    
+    poses = []
+    valid = []
+
+    for frame in contents['frames']:
+        poses.append(np.array(frame['transform_matrix']))
+        valid.append(True)
+
+    return poses, valid, contents
 
 
 def load_focal_length(filepath):
