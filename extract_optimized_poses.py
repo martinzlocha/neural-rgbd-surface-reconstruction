@@ -8,7 +8,7 @@ from pose_array import PoseArray
 
 def get_pose_array(expname, iter, basedir='./logs'):
 
-    config = os.path.join(basedir, expname, 'config.txt')
+    config = os.path.join(basedir, expname, 'transforms.json')
     print('Args:')
     print(open(config, 'r').read())
 
